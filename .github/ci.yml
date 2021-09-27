@@ -1,0 +1,32 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup Python
+        uses: actions/setup-python@v2.2.2
+
+      - name: Install Poetry
+        run: |
+          pip install poetry
+
+      - name: Install package
+        run: |
+          poetry install
+
+      - name: Lint
+        run: |
+          poetry run pylint --rcfile .pylintrc src/dtmf
+
+      - name: Test
+        run: |
+          poetry run pytest

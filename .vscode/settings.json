@@ -1,0 +1,12 @@
+{
+  "python.linting.enabled": true,
+  "python.linting.ignorePatterns": [
+    "tests/*.py",
+  ],
+  "python.linting.pylintEnabled": true,
+  "python.linting.pylintArgs": [
+    "--rcfile",
+    ".pylintrc"
+  ],
+  "python.testing.pytestEnabled": true
+}
