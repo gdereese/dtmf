@@ -1,3 +1,9 @@
+# pylint: disable=too-few-public-methods
+
+"""
+Object model for representing a dial string and the structure of its constituent pattern strings.
+"""
+
 from typing import Sequence
 
 
@@ -54,6 +60,10 @@ class Pause(Element):
 
 
 class String:
+    """
+    Series of DTMF tones and/or pauses.
+    """
+
     def __init__(self, elements: Sequence[Element]):
         self._elements = list(elements)
 

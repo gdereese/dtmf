@@ -8,28 +8,54 @@ from math import ceil
 from math import pi
 from math import sin
 from typing import Iterable
+from typing import NamedTuple
 
 from ._info import lookup_freqs
 from .model import Pause
 from .model import Tone
+
 from .model import String
 from .model import Element
 
 
+class GenerationParams(NamedTuple):
+    """
+    Parameters for the audio generation of DTMF tones.
+    """
+
+    level: float = 0
+    """
+    Audio level of the tones, in dBm (decibel-millivolts).
+    """
+
+    mark_duration: float = 0.04
+    """
+    Duration that each DTMF tone sounds, in seconds.
+    """
+
+    space_duration: float = 0.04
+    """
+    Duration of silence between consecutive DTMF tones, in seconds.
+    """
+
+    pause_duration: float = 1.0
+    """
+    Duration of silence to use for pauses, in seconds.
+    """
+
+
 def generate(
     string: String,
-    level: float = 0,
-    mark_duration: float = 0.04,
-    space_duration: float = 0.04,
-    pause_duration: float = 1,
+    params: GenerationParams = None,
     sample_rate: int = 8000
 ) -> Iterable[float]:
     """
     Generate audio for a string of DTMF tones and/or pauses.
     """
+    params = params or GenerationParams()
 
     tones = (
-        _element(el, level, mark_duration, space_duration, pause_duration, sample_rate)
+        _element(el, params, sample_rate)
         for el
         in string.elements
     )
@@ -39,16 +65,21 @@ def generate(
 
 def _element(
     element: Element,
-    level: float,
-    mark_duration: float,
-    space_duration: float,
-    pause_duration: float,
+    params: GenerationParams,
     sample_rate: int
 ) -> Iterable[float]:
     if isinstance(element, Pause):
-        return _pause(pause_duration, sample_rate)
+        return _pause(params.pause_duration, sample_rate)
     if isinstance(element, Tone):
-        return _tone(element, level, mark_duration, space_duration, sample_rate)
+        return _tone(
+            element,
+            params.level,
+            params.mark_duration,
+            params.space_duration,
+            sample_rate
+        )
+
+    raise ValueError(f"unrecognized element type: {element.__class__.__name__}")
 
 
 def _pause(duration: float, sample_rate: int):

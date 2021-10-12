@@ -1,7 +1,7 @@
 from dtmf import parse
-from dtmf.model import DtmfPause
-from dtmf.model import DtmfString
-from dtmf.model import DtmfTone
+from dtmf.model import Pause
+from dtmf.model import String
+from dtmf.model import Tone
 
 
 def test_parse():
@@ -9,18 +9,18 @@ def test_parse():
 
     string = parse(input)
 
-    assert string == DtmfString([
-        DtmfTone("5"),
-        DtmfTone("5"),
-        DtmfTone("5"),
-        DtmfTone("1"),
-        DtmfTone("2"),
-        DtmfTone("3"),
-        DtmfTone("4"),
-        DtmfPause(),
-        DtmfPause(),
-        DtmfTone("5"),
-        DtmfTone("0"),
-        DtmfTone("0"),
-        DtmfTone("#"),
+    assert string == String([
+        Tone("5"),
+        Tone("5"),
+        Tone("5"),
+        Tone("1"),
+        Tone("2"),
+        Tone("3"),
+        Tone("4"),
+        Pause(),
+        Pause(),
+        Tone("5"),
+        Tone("0"),
+        Tone("0"),
+        Tone("#"),
     ])

@@ -54,14 +54,10 @@ def detect(
         sum_energy = sum((pow(abs(s), 2) for s in block))
         avg_energy = sum_energy / len(block)
 
-        freq_mags = []
-        for freq, filter_mag in freq_filters:
-            mag_squared = pow(abs(filter_mag(block)), 2)
-            norm_mag = mag_squared / sum_energy
+        mags_squared = ((f, pow(abs(filter_func(block)), 2)) for f, filter_func in freq_filters)
+        norm_mags = ((f, m / sum_energy) for f, m in mags_squared)
+        detected_freqs = (f for f, m in norm_mags if m > (detect_threshold or avg_energy))
 
-            freq_mags.append((freq, norm_mag))
-
-        detected_freqs = [f for f, m in freq_mags if m > (detect_threshold or avg_energy)]
         symbol = lookup_symbol(detected_freqs)
         if not symbol:
             yield DtmfBlockResult(start, end, None)

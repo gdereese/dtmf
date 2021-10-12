@@ -9,6 +9,10 @@ from .model import Element
 
 
 def parse(string: str) -> String:
+    """
+    Parses a dial string into an equivalent object representation.
+    """
+
     elements = _parse_elements(string)
 
     return String(elements)

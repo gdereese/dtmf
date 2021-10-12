@@ -35,14 +35,26 @@ _freq_map = {
 
 
 def freqs() -> Iterable[float]:
+    """
+    Returns the list of distinct audio frequencies used in generating DTMF tones.
+    """
+
     return _freqs
 
 
 def lookup_freqs(symbol: str) -> Iterable[float]:
+    """
+    Lookup the pair of audio frequencies that correspond to a DTMF digit or symbol.
+    """
+
     return _freq_map.get(symbol)
 
 
 def lookup_symbol(tone_freqs: Iterable[float]) -> str:
+    """
+    Lookup the DTMF digit or symbol that corresponds to a list of distinct audio frequencies.
+    """
+
     for symbol, symbol_freqs in _freq_map.items():
         if set(symbol_freqs) == set(tone_freqs):
             return symbol
