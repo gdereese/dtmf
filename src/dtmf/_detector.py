@@ -1,14 +1,11 @@
 # pylint: disable=missing-module-docstring
 
-from math import cos
-from math import exp
-from math import pi
-from typing import Callable
 from typing import Iterable
 from typing import NamedTuple
 from typing import Tuple
 
-from ._info import freqs
+from ._analysis import analyze
+from ._analysis import AudioStats
 from ._info import lookup_symbol
 from .model import Tone
 
@@ -38,6 +35,11 @@ class DtmfBlockResult(NamedTuple):
     DTMF tone detected in the block, or None if no tone was detected.
     """
 
+    stats: AudioStats
+    """
+    Audio statistics for the block calculated during analysis.
+    """
+
 
 def detect(
     samples: Iterable[float],
@@ -48,21 +50,21 @@ def detect(
     Detect the presence of DTMF tones in a sequence of audio samples.
     """
 
-    freq_filters = [(f, _goertzel(BLOCK_SIZE, sample_rate, f)) for f in freqs()]
-
     for block, start, end in _blocks(samples):
-        sum_energy = sum((pow(abs(s), 2) for s in block))
-        avg_energy = sum_energy / len(block)
+        stats = analyze(block, sample_rate)
 
-        mags_squared = ((f, pow(abs(filter_func(block)), 2)) for f, filter_func in freq_filters)
-        norm_mags = ((f, m / sum_energy) for f, m in mags_squared)
-        detected_freqs = (f for f, m in norm_mags if m > (detect_threshold or avg_energy))
+        detected_freqs = (
+            f
+            for f, m
+            in stats.freq_mags
+            if m > (detect_threshold or stats.avg_energy)
+        )
 
-        symbol = lookup_symbol(detected_freqs)
+        symbol = lookup_symbol(list(detected_freqs))
         if not symbol:
-            yield DtmfBlockResult(start, end, None)
+            yield DtmfBlockResult(start, end, None, stats)
         else:
-            yield DtmfBlockResult(start, end, Tone(symbol))
+            yield DtmfBlockResult(start, end, Tone(symbol), stats)
 
 
 def _blocks(samples: Iterable[float]) -> Iterable[Tuple[int, int, Iterable[float]]]:
@@ -76,31 +78,3 @@ def _blocks(samples: Iterable[float]) -> Iterable[Tuple[int, int, Iterable[float
             break
 
         block_start = block_end
-
-
-def _goertzel(
-    block_size: int,
-    sample_rate: float,
-    freq: float
-) -> Callable[[Iterable[float]], float]:
-    """
-    Goertzel algorithm info:
-    https://www.ti.com/lit/an/spra066/spra066.pdf
-    """
-
-    k = round(block_size * (freq / sample_rate))
-    omega = (2 * pi * k) / block_size
-    cos_omega = 2 * cos(omega)
-
-    def _filter(samples: Iterable[float]) -> float:
-        s_0 = 0
-        s_1 = 0
-        s_2 = 0
-        for x_n in samples:
-            s_0 = x_n + cos_omega * s_1 - s_2
-            s_2 = s_1
-            s_1 = s_0
-
-        return s_0 - exp(-1.0 * omega) * s_1
-
-    return  _filter
