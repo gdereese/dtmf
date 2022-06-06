@@ -55,7 +55,7 @@ from dtmf import parse
 
 dial_str = "5551234,500#"
 
-obj = parse(input)
+obj = parse(dial_str)
 
 print(repr(obj))
 ```
