@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "dtmf"
-version = "1.0.0"
+version = "1.1.0"
 description = "Package for working with DTMF - a system for signaling over the voice band of a telephony system using multi-frequency tones."
 license = "MIT"
 authors = ["Gary DeReese <garydereese@sbcglobal.net>"]
