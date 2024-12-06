@@ -1,10 +1,9 @@
 name: Publish
 
 on:
-  push:
-    tags:
-      - \d+\.\d+\.\d+
-  workflow_dispatch:
+  release:
+    types:
+      - released
 
 jobs:
   publish:
